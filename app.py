@@ -153,26 +153,34 @@ def main():
         for instrucao in solucao_4:
             arquivo.write(instrucao + "\n")
 
-    print("\nCONFLITO DE DADOS NO PIPELINE\n")
+    print("\nSOLUÇÕES NO PIPELINE\n")
     
     print("SOLUÇÃO 1:")
-    print("- Qtd. ciclos: ", 5 + (len(solucao_1) - 1), " ciclos")
-    print("- Tempo de clock: ", (5 + (len(solucao_1) - 1)) * clock," nanossegundos")
+    print("- Qtd. ciclos: ", 5 + (len(solucao_1) - 1), "ciclos")
+    print('- Sobrecusto ciclos:', (5 + (len(solucao_1) - 1)) - (5 + (len(vetor) - 1)), "ciclos")
+    print("- Tempo de execução: ", (5 + (len(solucao_1) - 1)) * clock," nanossegundos")
+    print('- Sobrecusto execução:', ((5 + (len(solucao_1) - 1)) * clock) - ((5 + (len(vetor) - 1)) * clock), "nanossegundos")
     print("\n")
 
     print("SOLUÇÃO 2:")
-    print("- Qtd. ciclos: ", 5 + (len(solucao_2) - 1), " ciclos")
-    print("- Tempo de clock: ", (5 + (len(solucao_2) - 1)) * clock," nanossegundos")
+    print("- Qtd. ciclos: ", 5 + (len(solucao_2) - 1), "ciclos")
+    print('- Sobrecusto ciclos:', (5 + (len(solucao_2) - 1)) - (5 + (len(vetor) - 1)), "ciclos")
+    print("- Tempo de execução: ", (5 + (len(solucao_2) - 1)) * clock," nanossegundos")
+    print('- Sobrecusto execução:', ((5 + (len(solucao_2) - 1)) * clock) - ((5 + (len(vetor) - 1)) * clock), "nanossegundos")
     print("\n")
 
     print("SOLUÇÃO 3:")
-    print("- Qtd. ciclos: ", 5 + (len(solucao_3) - 1), " ciclos")
-    print("- Tempo de clock: ", (5 + (len(solucao_3) - 1)) * clock," nanossegundos")
+    print("- Qtd. ciclos: ", 5 + (len(solucao_3) - 1), "ciclos")
+    print('- Sobrecusto ciclos:', (5 + (len(solucao_3) - 1)) - (5 + (len(vetor) - 1)), "ciclos")
+    print("- Tempo de execução: ", (5 + (len(solucao_3) - 1)) * clock," nanossegundos")
+    print('- Sobrecusto execução:', ((5 + (len(solucao_3) - 1)) * clock) - ((5 + (len(vetor) - 1)) * clock), "nanossegundos")
     print("\n")
 
     print("SOLUÇÃO 4:")
-    print("- Qtd. ciclos: ", 5 + (len(solucao_4) - 1), " ciclos")
-    print("- Tempo de clock: ", (5 + (len(solucao_4) - 1)) * clock," nanossegundos")
+    print("- Qtd. ciclos: ", 5 + (len(solucao_4) - 1), "ciclos")
+    print('- Sobrecusto ciclos:', (5 + (len(solucao_4) - 1)) - (5 + (len(vetor) - 1)), "ciclos")
+    print("- Tempo de execução: ", (5 + (len(solucao_4) - 1)) * clock," nanossegundos")
+    print('- Sobrecusto execução:', ((5 + (len(solucao_4) - 1)) * clock) - ((5 + (len(vetor) - 1)) * clock), "nanossegundos")
     print("\n")
 
 if __name__ == "__main__":
