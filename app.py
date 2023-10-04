@@ -1,6 +1,4 @@
 import os
-solucao_1 = []
-solucao_2 = []
 
 def hexadecimal_binario(linha):
     conversao = {
@@ -13,38 +11,9 @@ def hexadecimal_binario(linha):
     binario = ""
 
     for caractere in linha:
-        binario += conversao.get(caractere.upper(), "") # Pega o caractere correspondente ao objeto "conversao" e adicione na string binario o seu valor correspondente
+        binario += conversao.get(caractere.upper(), "")
 
-    return binario     
-
-def tipo_instrucao(linha, segundaLinha, terceiraLinha, solucao):
-    instrucao = linha[-7:]
-    rd = linha[-12:-7]
-
-    segunda_instrucao = segundaLinha[-7:]
-    segunda_rs1 = segundaLinha[-20:-15]
-    segunda_rs2 = segundaLinha[-25:-20]
-
-    terceira_rs1 = terceiraLinha[-20:-15]
-    terceira_rs2 = terceiraLinha[-25:-20]
-
-    solucao_1.append(linha)
-    solucao_2.append(linha)
-
-    if instrucao == "0010011" or instrucao == "0000011": # instrucao == I ARITMÉTICO ou instrucao == LOAD WORD
-        if segunda_instrucao == "1101111" or segunda_instrucao == "1100111": # segunda_instrucao == JAL ou segunda_instrucao == JALR
-            solucao_1.append('00000000000000000000000000010011 - NOP')
-        else:
-            if rd == segunda_rs1 or rd == segunda_rs2: # registrador_destino == rs1_proxima_linha ou registrador_destino == rs2_proxima_linha
-                solucao_1.append('00000000000000000000000000010011 - NOP')
-                solucao_1.append('00000000000000000000000000010011 - NOP')
-
-                if instrucao == "0000011":
-                    solucao_2.append('00000000000000000000000000010011 - NOP')
-
-            elif rd == terceira_rs1 or rd == terceira_rs2: # registrador_destino == rs1_terceira_linha ou registrador_destino == rs2_terceira_linha
-                solucao_1.append('00000000000000000000000000010011 - NOP')
-    
+    return binario         
 
 def reorganizar_instrucoes(solucao):
     solucao_nova = []
@@ -154,8 +123,8 @@ def main():
     print("- Nicolas dos Santos Renaux")
     print("- Pedro Henrique Camargo Ruthes\n")
 
-    clock = input("Informe o tempo de relógio (CLOCK) em nanossegundos: ") # Tempo de CLOCK do programa
-    caminho_arquivo = 'arquivos/binario' # Caminho do arquivo a ser lido
+    clock = input("Informe o tempo de relógio (CLOCK) em nanossegundos: ")
+    caminho_arquivo = 'arquivos/binario'
     vetor = []
 
     with open(caminho_arquivo, 'r') as arquivo:
