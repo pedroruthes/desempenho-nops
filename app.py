@@ -15,9 +15,9 @@ def hexadecimal_binario(linha):
     for caractere in linha:
         binario += conversao.get(caractere.upper(), "") # Pega o caractere correspondente ao objeto "conversao" e adicione na string binario o seu valor correspondente
 
-    return binario
+    return binario     
 
-def tipo_instrucao(linha, segundaLinha, terceiraLinha):
+def tipo_instrucao(linha, segundaLinha, terceiraLinha, solucao):
     instrucao = linha[-7:]
     rd = linha[-12:-7]
 
@@ -44,6 +44,107 @@ def tipo_instrucao(linha, segundaLinha, terceiraLinha):
 
             elif rd == terceira_rs1 or rd == terceira_rs2: # registrador_destino == rs1_terceira_linha ou registrador_destino == rs2_terceira_linha
                 solucao_1.append('00000000000000000000000000010011 - NOP')
+    
+
+def reorganizar_instrucoes(solucao):
+    solucao_nova = []
+
+    for i in range(len(solucao)):
+        aritmetico = solucao[i][-7:] == "0010011"
+        load_word = solucao[i][-7:] == "0000011"
+
+        if aritmetico or load_word:
+            for j in range(i, 0, -1):
+                ja_ou_jalr = solucao[j - 1][-7:] == "1101111" or solucao[i - 1][-7:] == "1100111"
+                aritmetico_acima = solucao[j - 1][-7:] == "0010011"
+                load_word_acima = solucao[j - 1][-7:] == "0000011"
+                
+                if ja_ou_jalr or aritmetico_acima or load_word_acima:
+                    break
+                else:
+                    temp = solucao[j]
+                    solucao[j] = solucao[j - 1]
+                    solucao[j - 1] = temp
+
+    for i in range(len(solucao)):
+        if solucao[i] != "00000000000000000000000000010011 - NOP":
+            solucao_nova.append(solucao[i])
+
+    return solucao_nova
+
+def adicionar_nops_forwarding(vetor):
+    solucao = []
+
+    for i in range(len(vetor)):
+
+        if i + 1 > len(vetor) - 1:
+            segundaLinha = ""
+        else:
+            segundaLinha = vetor[i + 1]
+
+        primeiraLinha = vetor[i] if all(c in '01' for c in vetor[i].strip()) else hexadecimal_binario(vetor[i])
+        segundaLinha = segundaLinha if all(c in '01' for c in vetor[i].strip()) else hexadecimal_binario(segundaLinha)
+
+        instrucao = primeiraLinha[-7:]
+        rd = primeiraLinha[-12:-7]
+
+        segunda_instrucao = segundaLinha[-7:]
+        segunda_rs1 = segundaLinha[-20:-15]
+        segunda_rs2 = segundaLinha[-25:-20]
+
+        solucao.append(primeiraLinha)
+
+        if instrucao == "0010011" or instrucao == "0000011":
+            if segunda_instrucao != "1101111" or segunda_instrucao != "1100111":
+                if rd == segunda_rs1 or rd == segunda_rs2:
+                    if instrucao == "0000011":
+                        solucao.append('00000000000000000000000000010011 - NOP')
+
+    return solucao
+
+def adicionar_nops(vetor):
+    solucao = []
+
+    for i in range(len(vetor)):
+
+        if i + 1 > len(vetor) - 1:
+            segundaLinha = ""
+        else:
+            segundaLinha = vetor[i + 1]
+
+        if i + 2 > len(vetor) - 1:
+            terceiraLinha = ""
+        else:
+            terceiraLinha = vetor[i + 2]
+
+        primeiraLinha = vetor[i] if all(c in '01' for c in vetor[i].strip()) else hexadecimal_binario(vetor[i])
+        segundaLinha = segundaLinha if all(c in '01' for c in vetor[i].strip()) else hexadecimal_binario(segundaLinha)
+        terceiraLinha = terceiraLinha if all(c in '01' for c in vetor[i].strip()) else hexadecimal_binario(terceiraLinha)
+
+        instrucao = primeiraLinha[-7:]
+        rd = primeiraLinha[-12:-7]
+
+        segunda_instrucao = segundaLinha[-7:]
+        segunda_rs1 = segundaLinha[-20:-15]
+        segunda_rs2 = segundaLinha[-25:-20]
+
+        terceira_rs1 = terceiraLinha[-20:-15]
+        terceira_rs2 = terceiraLinha[-25:-20]
+
+        solucao.append(primeiraLinha)
+
+        if instrucao == "0010011" or instrucao == "0000011":
+            if segunda_instrucao == "1101111" or segunda_instrucao == "1100111":
+                solucao.append('00000000000000000000000000010011 - NOP')
+            else:
+                if rd == segunda_rs1 or rd == segunda_rs2:
+                    solucao.append('00000000000000000000000000010011 - NOP')
+                    solucao.append('00000000000000000000000000010011 - NOP')
+
+                elif rd == terceira_rs1 or rd == terceira_rs2:
+                    solucao.append('00000000000000000000000000010011 - NOP')
+
+    return solucao
 
 def main():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -61,23 +162,11 @@ def main():
         for linha in arquivo:
             vetor.append(linha.strip())
 
-        for i in range(len(vetor)):
-
-            if i + 1 > len(vetor) - 1:
-                segundaLinha = ""
-            else:
-                segundaLinha = vetor[i + 1]
-
-            if i + 2 > len(vetor) - 1:
-                terceiraLinha = ""
-            else:
-                terceiraLinha = vetor[i + 2]
-
-
-            if all(c in '01' for c in linha.strip()): # Verifica se a linha lida contêm somente os valores 0 e 1
-                tipo_instrucao(vetor[i], segundaLinha, terceiraLinha)
-            else:
-                tipo_instrucao(hexadecimal_binario(vetor[i]), hexadecimal_binario(segundaLinha), hexadecimal_binario(terceiraLinha))
+        solucao_1 = adicionar_nops(vetor)
+        solucao_2 = adicionar_nops_forwarding(vetor)
+    
+    solucao_3 = adicionar_nops(reorganizar_instrucoes(solucao_1))
+    solucao_4 = adicionar_nops_forwarding(reorganizar_instrucoes(solucao_2))
 
     with open('solucoes/solucao_1', 'w') as arquivo:
         for i in range(len(solucao_1)):
@@ -86,67 +175,14 @@ def main():
     with open('solucoes/solucao_2', 'w') as arquivo:
         for i in range(len(solucao_2)):
             arquivo.write(solucao_2[i] + "\n")
-    
-    solucao_3 = solucao_1.copy()
-    
-    for i in range(len(solucao_1) - 1):
-        achou_jal = solucao_1[i - 1][-7:] == "1101111"  or solucao_1[i - 1][-7:] == "1100111"
-        utiliza_rd = solucao_1[i][-20:-15] == solucao_1[i - 3][-12:-7] or solucao_1[i][-25:-20] == solucao_1[i - 3][-12:-7] and solucao_1[i - 3][-7:] == "0010011" or solucao_1[i - 3][-7:] == "0000011"
-        utiliza_rs = solucao_1[i - 1][-20:-15] == solucao_1[i][-12:-7] or solucao_1[i - 1][-25:-20] == solucao_1[i][-12:-7]
 
-        atual = solucao_1[i]
-        modificar = True
-        count = 0
-
-        if solucao_1[i + 1] == "00000000000000000000000000010011 - NOP" and solucao_1[i + 2] ==  "00000000000000000000000000010011 - NOP":
-
-            for j in range(i, 0, -1):
-                if solucao_1[j - 1] == "00000000000000000000000000010011 - NOP" or achou_jal or utiliza_rd or utiliza_rs:
-                    if solucao_1[j - 1] == "00000000000000000000000000010011 - NOP":
-                        modificar = False
-                        solucao_3[j - 1] = atual
-                        del solucao_3[i]
-                        break
-                    break
-
-                count += 1
-                            
-            if count >= 2 and modificar:
-                solucao_3.insert(i - count, atual)
-
-                del solucao_3[i + 1]
-                del solucao_3[i + 2]
-            elif count == 1 and modificar:
-                solucao_3.insert(i - count, atual)
-                del solucao_3[i + 1]
-
-        elif solucao_1[i + 1] == "00000000000000000000000000010011 - NOP" and solucao_1[i] != "00000000000000000000000000010011 - NOP":
-
-            for j in range(i, 0, -1):
-                if solucao_1[j - 1] == "00000000000000000000000000010011 - NOP" or achou_jal or utiliza_rd or utiliza_rs:
-                    if solucao_1[j - 1] == "00000000000000000000000000010011 - NOP":
-                        modificar = False
-                        solucao_3[j - 1] = atual
-                        del solucao_3[i]
-                        break
-
-                    break
-                count += 1
-
-            if count >= 1 and modificar:
-                solucao_3.insert(i - count, atual)
-                del solucao_3[i + 1]
-    
     with open('solucoes/solucao_3', 'w') as arquivo:
-        for i in range(len(solucao_3)):
-            arquivo.write(solucao_3[i] + "\n")
+        for instrucao in solucao_3:
+            arquivo.write(instrucao + "\n")
+
+    with open('solucoes/solucao_4', 'w') as arquivo:
+        for instrucao in solucao_4:
+            arquivo.write(instrucao + "\n")
 
 if __name__ == "__main__":
     main()
-
-# 1 PASSO: PEGAR A INSTRUÇÃO ATUAL E VERIFICAR SE ELE TEM UM OU DOIS NOP APÓS ELA (CERTO)
-# 2 PASSO: SE TIVER NOP, DEVE JOGAR A INSTRUÇÃO ATUAL PARA CIMA ATÉ ACHAR UM JALR/JAL OU NOP
-# 3 PASSO: VERIFICAR QUANTAS CASAS PARA CIMA ELE SUBIU E EXCLUIR A QUANTIDADE DE NOPS (POR EXEMPLO: SUBIU UMA CASA, TIRA UM NOP)
-# 4 PASSO: CASO ELE SUBA ATÉ ACHAR UM NOP, DEVE TIRAR TAMBÉM O NOP ACIMA DELE
-
-# OBS: PARA FAZER ESSAS SUBIDAS, DEVE VERIFICAR SE O RD DA INSTRUÇÃO ATUAL NÃO É UTILIZADA PELO RD, RS1 OU RS2 DA INSTRUÇÃO ACIMA
